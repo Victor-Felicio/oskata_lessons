@@ -6,7 +6,8 @@ valor_produto = 100.00
 valor_total = qnt_produto * valor_produto
 comiss = valor_total * 0.15
 
-print("O código de identificação do vendedor é: ", cod_vendedor, ".")
+print("O código de identificação do vendedor é: {}.".format(cod_vendedor))
 print("A quantidade de produtos vendidos foi ", qnt_produto, "Fones de Ouvido.")
 print("O valor total da venda foi de R$", valor_total, ".")
 print("A comissão do vendedor é de R$", comiss, ".")
+
