@@ -1,6 +1,7 @@
 # Sistema Interativo Multifuncional em Python (S.I.M.P.).
 
 import random
+import json
 
 # Lista para manipulação de dados.
 lista_nomes = []
@@ -8,50 +9,79 @@ lista_nomes = []
 
 # FUNÇÕES MATEMÁTICAS.
 def somar():
-    a = float(input("Digite o primeiro número: "))
-    b = float(input("Digite o segundo número: "))
-    print("Resultado:", a + b)
+    def ler_float():
+        def ler_opcao(opcoes_validas):
+            while True:
+                opcao = input("Escolha: ")
+                if opcao in opcoes_validas:
+                    return opcao
+                else:
+                    print("Opção inválida! Tente novamente.")
+        a = ler_float("Digite o primeiro número: ")
+        b = ler_float("Digite o segundo número: ")
+        print("Resultado: ", a + b)
 
 
 def par_ou_impar():
-    n = int(input("Digite um número: "))
-    if n % 2 == 0:
-        print("Número par")
-    else:
-        print("Número ímpar")
+    def ler_inteiro():
+        n = ler_inteiro("Digite um número: ")
+        if n % 2 == 0:
+            print("Número par.")
+        else:
+            print("Número ímpar.")
 
 
 def media():
-    numeros = input("Digite os números separados por espaço: ")
-    lista = list(map(float, numeros.split()))
-    print("Média:", sum(lista) / len(lista))
-
+    def ler_lista_numeros():
+        while True:
+            entrada = input("Digite números separados por um espaço: ")
+            lista = ler_lista_numeros()
+            if not lista:
+                print("Lista vazia!")
+                return
+            print("Média: ", sum(lista) / len(lista))
 
 def fatorial():
-    n = int(input("Digite um número: "))
-    resultado = 1
-    for i in range(1, n + 1):
-        resultado *= i
-    print("Fatorial:", resultado)
+    def ler_inteiro():
+        n = ler_inteiro("Digite um número: ")
+        if n < 0:
+            print("Não existe fatorial de número negativo.")
+            return
+        resultado = 1
+        for i in range(1, n + 1):
+            resultado *= i
+        print("Fatorial: ", resultado)
 
 
 def primo():
-    n = int(input("Digite um número: "))
-    if n < 2:
-        print("Não é primo")
-        return
-    for i in range(2, int(n ** 0.5) + 1):
-        if n % i == 0:
-            print("Não é primo")
+    def ler_inteiro():
+        n = ler_inteiro("Digite um número: ")
+        if n < 2:
+            print("Não é primo.")
             return
-    print("É primo")
-
+        for i in range(2, int(n ** 0.5) + 1):
+            if n % i == 0:
+                print("Não é primo.")
+                return
+    print("É primo.")
 
 def maior_menor():
-    numeros = input("Digite os números separados por espaço: ")
-    lista = list(map(float, numeros.split()))
-    print("Maior:", max(lista))
-    print("Menor:", min(lista))
+    def ler_lista_numeros():
+        while True:
+            entrada = input("Digite números separados por espaço: ")
+            try:
+                return list(map(float, entrada.split()))
+            except ValueError:
+                print("Erro: digite apenas números separados por espaço.")
+
+    lista = ler_lista_numeros()
+
+    if not lista:
+        print("Lista vazia!")
+        return
+
+    print("Maior: ", max(lista))
+    print("Menor: ", min(lista))
 
 
 # TEXTO.
@@ -79,6 +109,7 @@ def adicionar_nomes():
         if nome.lower() == 'sair':
             break
         lista_nomes.append(nome)
+        salvar_dados()
     print("Lista atual:", lista_nomes)
 
 
@@ -86,6 +117,7 @@ def remover_nome():
     nome = input("Digite o nome que deseja remover: ")
     if nome in lista_nomes:
         lista_nomes.remove(nome)
+        salvar_dados()
         print("Nome removido.")
     else:
         print("Nome não encontrado.")
@@ -109,11 +141,30 @@ def login_simples():
     else:
         print("Usuário ou senha incorretos.")
 
+def salvar_dados():
+    dados = {
+        "Nomes": lista_nomes
+    }
+    with open("dados.json", "w") as arquivo:
+        json.dump(dados, arquivo)
+
+
+def carregar_dados():
+    global lista_nomes
+    try:
+        with open("dados.json", "r") as arquivo:
+            dados = json.load(arquivo)
+            lista_nomes = dados.get("nomes", [])
+    except FileNotFoundError:
+        lista_nomes = []
+
+carregar_dados()
 
 #  MENUS.
+
 def menu_matematica():
     while True:
-        print("--- MENU MATEMÁTICA ---")
+        print("=== MENU MATEMÁTICA ===")
         print("1 - Somar dois números")
         print("2 - Par ou ímpar")
         print("3 - Média de números")
@@ -122,7 +173,7 @@ def menu_matematica():
         print("6 - Maior e menor número")
         print("0 - Voltar")
 
-        opcao = input("Escolha: ")
+        opcao = ler_opcao(["1", "2", "3", "4", "5", "6", "0"])
 
         if opcao == "1":
             somar()
@@ -137,6 +188,8 @@ def menu_matematica():
         elif opcao == "6":
             maior_menor()
         elif opcao == "0":
+            salvar_dados()
+            print("Dados salvos. Encerrando o programa...")
             break
         else:
             print("Opção inválida!")
@@ -150,7 +203,7 @@ def menu_texto():
         print("3 - Contar palavras.")
         print("0 - Voltar.")
 
-        opcao = input("Escolha: ")
+        opcao = ler_opcao(["1", "2", "3", "0"])
 
         if opcao == "1":
             contar_vogais()
@@ -171,7 +224,13 @@ def menu_dados():
         print("2 - Remover nome.")
         print("0 - Voltar.")
 
-        opcao = input("Escolha: ")
+def ler_opcao(opcoes_validas):
+    while True:
+        opcao = ler_opcao(["1", "2", "0"])
+        if opcao in opcoes_validas:
+            return opcao
+        else:
+            print("Opção inválida! Tente novamente.")
 
         if opcao == "1":
             adicionar_nomes()
@@ -190,7 +249,7 @@ def menu_extras():
         print("2 - Login.")
         print("0 - Voltar.")
 
-        opcao = input("Escolha: ")
+        opcao = ler_opcao(["1", "2", "0"])
 
         if opcao == "1":
             numero_aleatorio()
@@ -210,7 +269,7 @@ def main():
         print("4 - Extras.")
         print("0 - Encerrar.")
 
-        opcao = input("Escolha: ")
+        opcao = ler_opcao(["1", "2", "3", "4", "0"])
 
         if opcao == "1":
             menu_matematica()
@@ -226,6 +285,5 @@ def main():
         else:
             print("Opção inválida!")
 
-
-# Executa o programa.
+carregar_dados()
 main()
